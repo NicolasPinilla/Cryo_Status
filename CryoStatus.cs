@@ -1,3 +1,11 @@
+// Tags
+
+// Nombre de las cámaras criogénicas
+string cryoChamberName = "CryoChamber";
+// Nombre de los paneles LCD
+string lcdPanelName = "CryoStatusPanel";
+
+
 List<IMyShipController> cryoChambers = new List<IMyShipController>();
 List<IMyTextPanel> lcdPanels = new List<IMyTextPanel>();
 
@@ -7,8 +15,8 @@ private double elapsedSeconds = 0;
 public Program()
 {
     // Obtén todas las cámaras criogénicas y los paneles LCD en la red del barco
-    GridTerminalSystem.GetBlocksOfType<IMyShipController>(cryoChambers, x => x.CustomName.Contains("CryoChamber"));
-    GridTerminalSystem.GetBlocksOfType<IMyTextPanel>(lcdPanels, x => x.CustomName.Contains("CryoStatusPanel"));
+    GridTerminalSystem.GetBlocksOfType<IMyShipController>(cryoChambers, x => x.CustomName.Contains(cryoChamberName));
+    GridTerminalSystem.GetBlocksOfType<IMyTextPanel>(lcdPanels, x => x.CustomName.Contains(lcdPanelName));
 
     // Establece la frecuencia de actualización para que el código se ejecute cada segundo
     Runtime.UpdateFrequency = UpdateFrequency.Update1;
@@ -60,7 +68,7 @@ public void Main(string argument, UpdateType updateSource)
         }
 
         // Encuentra el panel LCD correspondiente
-        var lcdPanel = lcdPanels.FirstOrDefault(x => x.CustomName.Replace("CryoStatusPanel", "") == cryoChamber.CustomName.Replace("CryoChamber", ""));
+        var lcdPanel = lcdPanels.FirstOrDefault(x => x.CustomName.Replace(lcdPanelName, "") == cryoChamber.CustomName.Replace(cryoChamberName, ""));
 
         if (lcdPanel != null)
         {
@@ -73,6 +81,18 @@ public void Main(string argument, UpdateType updateSource)
         }
     }
 
-    // Imprimir el resumen
-    Echo($"Se encontraron {cryoChambers.Count} cámaras criogénicas y {lcdPanels.Count} paneles LCD.\n\nNúmero total de cámaras criogénicas ocupadas: {occupiedCryoChambers}\n\nNúmero total de cámaras criogénicas disponibles: {availableCryoChambers}");
+    // Crear el resumen
+    string summary = $"Se encontraron {cryoChambers.Count} cámaras criogénicas y {lcdPanels.Count} paneles LCD.\n\nNúmero total de cámaras criogénicas ocupadas: {occupiedCryoChambers}\n\nNúmero total de cámaras criogénicas disponibles: {availableCryoChambers}";
+
+    // Imprimir el resumen en el log
+    Echo(summary);
+
+    // Obtener la pantalla del bloque programable
+    var surface = Me.GetSurface(0);
+
+    // Cambiar el tamaño de la fuente
+    surface.FontSize = 0.5f;
+
+    // Mostrar el resumen en la pantalla del bloque programable
+    surface.WriteText(summary);
 }
